@@ -30,8 +30,42 @@ require File.expand_path(File.dirname(__FILE__) + '/neo')
 # Your goal is to write the score method.
 
 def score(dice)
-  # You need to write this method
+  point_total = 0
+
+  counts = Hash.new(0)
+
+  dice.each do |value|
+    counts[value] += 1
+  end
+
+  counts.each do |number, occurances|
+    # 1,1,1 = 1000 points
+    if number == 1 && occurances >= 3 then
+      point_total += 1000
+      occurances -= 3
+    end
+
+    # any number other than 1, found 3 times is that number times
+    # 100.. so 5,5,5 = 500 points, 3,3,3 = 300 points, etc.
+    if number != 1 && occurances >= 3 then
+      point_total += number * 100
+      occurances -= 3
+    end
+
+    # 1 (not part of set) = 100 points for each found
+    if number == 1 && occurances <= 2 then
+      point_total += 100 * occurances
+    end
+
+    # 5 (not part of set) = 50 points for each found
+    if number == 5 && occurances <=2 then
+      point_total += 50 * occurances
+    end
+  end
+
+  point_total
 end
+
 
 class AboutScoringProject < Neo::Koan
   def test_score_of_an_empty_list_is_zero
@@ -40,6 +74,10 @@ class AboutScoringProject < Neo::Koan
 
   def test_score_of_a_single_roll_of_5_is_50
     assert_equal 50, score([5])
+  end
+
+  def test_score_of_a_double_roll_of_5_is_100
+    assert_equal 100, score([5,5])
   end
 
   def test_score_of_a_single_roll_of_1_is_100
@@ -73,5 +111,4 @@ class AboutScoringProject < Neo::Koan
     assert_equal 1200, score([1,1,1,1,1])
     assert_equal 1150, score([1,1,1,5,1])
   end
-
 end
